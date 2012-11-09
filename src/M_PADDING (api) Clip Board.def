@@ -1,0 +1,233 @@
+Option Compare Database
+Option Explicit
+
+Private Declare Function api_EmptyClipBoard Lib "user32" Alias "EmptyClipboard" () As Long
+Private Declare Function api_OpenClipBoard Lib "user32" Alias "OpenClipboard" (ByVal hwnd As Long) As Long
+Private Declare Function api_CloseClipBoard Lib "user32" Alias "CloseClipboard" () As Long
+Private Declare Function api_SetClipBoardData Lib "user32" Alias "SetClipboardData" (ByVal wFormat As Long, ByVal hMem As Long) As Long
+Private Declare Function api_GetClipboardData Lib "user32" Alias "GetClipboardData" (ByVal wFormat As Long) As Long
+Private Declare Function api_IsClipboardFormatAvailable Lib "user32" Alias "IsClipboardFormatAvailable" (ByVal uFormat As Long) As Long
+Private Declare Function api_GetPriorityClipboardFormat Lib "user32" Alias "GetPriorityClipboardFormat" (lpPriorityList As Long, ByVal nCount As Long) As Long
+
+Private Declare Function api_GlobalAlloc Lib "kernel32" Alias "GlobalAlloc" (ByVal wFlags As Long, ByVal dwBytes As Long) As Long
+Private Declare Function api_GlobalFree Lib "kernel32" Alias "GlobalFree" (ByVal hMem As Long) As Long
+Private Declare Function api_GlobalLock Lib "kernel32" Alias "GlobalLock" (ByVal hMem As Long) As Long
+Private Declare Function api_GlobalUnlock Lib "kernel32" Alias "GlobalUnlock" (ByVal hMem As Long) As Long
+Private Declare Function api_GlobalSize Lib "kernel32" Alias "GlobalSize" (ByVal hMem As Long) As Long
+
+Private Declare Sub api_CopyMem Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, ByVal Length As Long)
+
+' Global Memory Flags
+Private Const GMEM_MOVEABLE = &H2
+Private Const GMEM_ZEROINIT = &H40
+Private Const GHND = (GMEM_MOVEABLE Or GMEM_ZEROINIT)
+
+' Predefined Clipboard Formats
+Private Const CF_TEXT = 1
+Private Const CF_BITMAP = 2
+Private Const CF_METAFILEPICT = 3
+Private Const CF_SYLK = 4
+Private Const CF_DIF = 5
+Private Const CF_TIFF = 6
+Private Const CF_OEMTEXT = 7
+Private Const CF_DIB = 8
+Private Const CF_PALETTE = 9
+Private Const CF_PENDATA = 10
+Private Const CF_RIFF = 11
+Private Const CF_WAVE = 12
+Private Const CF_UNICODETEXT = 13
+Private Const CF_ENHMETAFILE = 14
+Private Const CF_HDROP = 15
+Private Const CF_LOCALE = 16
+Private Const CF_MAX = 17
+Private Const CF_OWNERDISPLAY = &H80
+Private Const CF_DSPTEXT = &H81
+Private Const CF_DSPBITMAP = &H82
+Private Const CF_DSPMETAFILEPICT = &H83
+Private Const CF_DSPENHMETAFILE = &H8E
+
+' http://msdn.microsoft.com/en-us/library/ms776445.aspx
+Private Const IS_TEXT_UNICODE_ASCII16 = &H1
+Private Const IS_TEXT_UNICODE_CONTROLS = &H4
+Private Const IS_TEXT_UNICODE_DBCS_LEADBYTE = &H400
+Private Const IS_TEXT_UNICODE_ILLEGAL_CHARS = &H100
+Private Const IS_TEXT_UNICODE_NOT_ASCII_MASK = &HF000
+Private Const IS_TEXT_UNICODE_NOT_UNICODE_MASK = &HF00
+Private Const IS_TEXT_UNICODE_NULL_BYTES = &H1000
+Private Const IS_TEXT_UNICODE_ODD_LENGTH = &H200
+Private Const IS_TEXT_UNICODE_REVERSE_ASCII16 = &H10
+Private Const IS_TEXT_UNICODE_REVERSE_CONTROLS = &H40
+Private Const IS_TEXT_UNICODE_REVERSE_MASK = &HF0
+Private Const IS_TEXT_UNICODE_REVERSE_SIGNATURE = &H80
+Private Const IS_TEXT_UNICODE_REVERSE_STATISTICS = &H20
+Private Const IS_TEXT_UNICODE_SIGNATURE = &H8
+Private Const IS_TEXT_UNICODE_STATISTICS = &H2
+Private Const IS_TEXT_UNICODE_UNICODE_MASK = &HF
+
+Private Declare Function IsTextUnicode Lib "advapi32" (ByVal lpBuffer As String, ByVal cb As Long, lpi As Long) As Long
+Private Declare Function IsTextPointerUnicode Lib "advapi32" Alias "IsTextUnicode" (ByVal lpBuffer As Long, ByVal cb As Long, lpi As Long) As Long
+
+Public Sub m_ClipBoard_Set(ByVal Data As String, Optional ByVal cbFormat As Long = 0)
+'    Copy the string directly to the Windows clipboard.
+    
+3       Dim hMemAlloc As Long
+4       Dim hMemLock  As Long
+5       Dim DataLen   As Long
+6       Dim Result    As Long
+7       Dim OpenOk    As Boolean
+    
+9       On Error GoTo Err_ClipBoard_Set
+    
+11      If cbFormat = 0 Then cbFormat = CF_UNICODETEXT
+    
+13      m_Txt_LastNullChar_Add Data ' A null character should signals the end of the data. http://msdn.microsoft.com/en-us/library/ms649013(VS.85).aspx
+    
+15      DataLen = LenB(Data)
+16      hMemAlloc = api_GlobalAlloc(GHND, DataLen)
+    
+18      If hMemAlloc <> 0 Then
+        
+20          hMemLock = api_GlobalLock(hMemAlloc)
+        
+22          api_CopyMem ByVal hMemLock, ByVal StrPtr(Data), DataLen
+        
+24          If api_GlobalUnlock(hMemAlloc) = 0 Then
+25              If api_OpenClipBoard(0&) <> 0 Then
+26                  OpenOk = True
+27                  Result = api_EmptyClipBoard()
+28                  Result = api_SetClipBoardData(cbFormat, hMemAlloc)
+29              End If
+30          End If
+        
+32      End If
+    
+34 End_ClipBoard_Set:
+35      If OpenOk Then
+36          Result = api_CloseClipBoard()
+37      End If
+    Exit Sub
+    
+40 Err_ClipBoard_Set:
+41      MsgBox Err.description
+42      Resume End_ClipBoard_Set
+    
+End Sub
+
+Function m_Txt_IsAscii(Txt As String) As Boolean
+    
+2       If Len(Txt) = LenB(Txt) Then
+3           m_Txt_IsAscii = True
+        Exit Function
+5       End If
+    
+7       Dim i As Long
+    
+9       For i = 1 To Len(Txt)
+10          If Asc(MidB$(Txt, 2 * i, 1) & vbNullChar) <> 0 Then
+11              Exit Function ' The result is False
+12          End If
+13      Next i
+    
+15      m_Txt_IsAscii = True
+    
+End Function
+
+Sub m_Txt_LastNullChar_Del(ByRef Txt As String)
+'    Delete the last null char if any
+    
+3       Dim p As Long
+4       p = InStr(1, Txt, vbNullChar, 0)
+5       If p > 0 Then
+6           Txt = Mid(Txt, 1, p - 1)
+7       End If
+    
+End Sub
+
+Sub m_Txt_LastNullChar_Add(ByRef Txt As String)
+'    Ensure that the last char is a null char.
+    
+3       If Right(Txt, 1) <> vbNullChar Then
+4           Txt = Txt & vbNullChar
+5       End If
+    
+End Sub
+
+Public Function m_ClipBoard_Get(Optional cbFormat As Long = 0) As String
+'    Get the string content from the Windows clipboard.
+    
+3       Dim hMem      As Long
+4       Dim lMem      As Long
+5       Dim Txt       As String
+6       Dim TxtByte() As Byte
+7       Dim TxtLen    As Long
+8       Dim Result    As Long
+9       Dim OpenOk    As Boolean
+    
+11      On Error GoTo Err_ClipBoard_Get
+    
+13      If cbFormat = 0 Then
+14          cbFormat = m_ClipBoard_GetPriorityFormat(CF_UNICODETEXT, CF_TEXT, CF_OEMTEXT)
+15      End If
+    
+17      If cbFormat > 0 Then
+18          If api_OpenClipBoard(0&) <> 0 Then
+19              OpenOk = True
+20              hMem = api_GetClipboardData(cbFormat)
+21              TxtLen = api_GlobalSize(hMem)
+22              If TxtLen > 0 Then
+                
+24                  ReDim TxtByte(0 To TxtLen - 1)
+25                  lMem = api_GlobalLock(hMem)
+26                  api_CopyMem TxtByte(0), ByVal lMem, TxtLen
+                
+28                  Txt = TxtByte()
+                
+30                  If cbFormat <> CF_UNICODETEXT Then Txt = StrConv(Txt, vbUnicode)
+31                  m_Txt_LastNullChar_Del Txt ' A null character should signals the end of the data. http://msdn.microsoft.com/en-us/library/ms649013(VS.85).aspx
+                
+33                  Result = api_GlobalUnlock(hMem)
+34              End If
+35          End If
+36      Else
+37          Txt = "<no text data available in the clipboard>"
+38      End If
+    
+40      m_ClipBoard_Get = Txt
+    
+42 End_ClipBoard_Get:
+43      If OpenOk Then
+44          Result = api_CloseClipBoard()
+45      End If
+    Exit Function
+    
+48 Err_ClipBoard_Get:
+49      MsgBox Err.description
+50      Resume End_ClipBoard_Get
+    
+End Function
+
+Public Function m_ClipBoard_GetPriorityFormat(ParamArray Formats()) As Long
+    
+2       Dim Fmts() As Long
+3       Dim i As Long
+4       Dim nFmt As Long
+    
+'    Bail, if no formats were requested
+    If UBound(Formats) < 0 Then Exit Function
+    
+'    Transfer desired formats into a non-variant array
+10      ReDim Fmts(0 To UBound(Formats)) As Long
+11      For i = 0 To UBound(Formats)
+'        Double conversion, to be safer.
+'        Could error trap, but that'd mean the
+'        user was a hoser, and we wouldn't want
+'        to insinuate *that*, would we?
+16          Fmts(i) = CLng(Val(Formats(i)))
+17      Next i
+    
+19      nFmt = api_GetPriorityClipboardFormat(Fmts(0), UBound(Fmts) + 1)
+    
+'    Return results
+22      m_ClipBoard_GetPriorityFormat = nFmt
+    
+End Function

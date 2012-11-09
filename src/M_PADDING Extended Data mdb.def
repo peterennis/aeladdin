@@ -1,0 +1,202 @@
+Option Compare Database
+Option Explicit
+
+Global Const c_Mdb_FormTemplate = "T_FormTemplate"
+Global Const c_Mdb_PersonalObject = "T_PersonalObject"
+
+Public Function m_DataMdb_OpenCnx(Optional ByVal DataMdb As String) As ADODB.Connection
+    
+2       Const dbLangGeneral = ";LANGID=0x0409;CP=1252;COUNTRY=0"
+    
+4       Dim Cnx As New ADODB.Connection
+5       Dim p   As Integer
+6       Dim VerTxt As String
+    
+8       If DataMdb = vbNullString Then
+9           DataMdb = m_DataMdb_FullPath()
+10      End If
+    
+'    Creates the mdb if it doesn't exist
+13      If Not m_File_IsExisting(DataMdb) Then
+14          Dim DbE As Object
+15          VerTxt = DBEngine.VERSION
+16          p = InStr(VerTxt, ".")
+17          If p > 0 Then VerTxt = Left$(VerTxt, p - 1) & Mid$(VerTxt, p + 1, 1) ' take od the dat and keep only one decimal
+18          Set DbE = CreateObject("DAO.DbEngine." & VerTxt)
+19          DbE.CreateDatabase DataMdb, dbLangGeneral
+20          Set DbE = Nothing
+21      End If
+    
+23      Cnx.Open "Provider=" & CodeProject.Connection.Provider & ";Data Source=" & DataMdb
+    
+25      Set m_DataMdb_OpenCnx = Cnx
+    
+End Function
+
+Public Sub m_DataMdb_CheckTable(TableName As String, Optional Cnx As ADODB.Connection, Optional ByVal DataMdb As String)
+'    This function check if the specified table exists in the Data mdb.
+'    If the mdb doesn't exist, the function creats it.
+'    If the tables doesn't exist, the function creates it.
+    
+5       Dim CloseAtEnd As Boolean
+    
+7       If Cnx Is Nothing Then
+8           CloseAtEnd = True
+9           Set Cnx = m_DataMdb_OpenCnx(DataMdb)
+10      End If
+    
+12      If Not p_Table_Existes(Cnx, TableName) Then
+13          p_Table_Create Cnx, TableName
+14      End If
+    
+16      If CloseAtEnd = True Then
+17          Cnx.Close
+18          Set Cnx = Nothing
+19      End If
+    
+End Sub
+
+Public Function m_DataMdb_HasData(Optional ByVal DataMdb As String) As Boolean
+'    Returns True if data has been save in any table
+'    Usefull only for the Unsinstall process.
+    
+4       Dim Con As New ADODB.Connection
+5       Dim rs  As New ADODB.Recordset
+    
+7       Dim Nbr As Long
+8       Dim Sql As String
+    
+10      If DataMdb = vbNullString Then
+11          DataMdb = m_DataMdb_FullPath()
+12      End If
+13      Nbr = 0
+    
+15      On Error Resume Next
+    
+17      Con.Open "Provider=" & CodeProject.Connection.Provider & ";Data Source=" & DataMdb
+    
+19      With rs
+20          .Open "SELECT COUNT(*) AS Nbr FROM [" & c_Mdb_FormTemplate & "]", Con
+21          Nbr = Nbr + !Nbr
+22          .Close
+23          .Open "SELECT COUNT(*) AS Nbr FROM [" & c_Mdb_PersonalObject & "]", Con
+24          Nbr = Nbr + !Nbr
+25          .Close
+26      End With
+    
+28      Con.Close
+    
+30      m_DataMdb_HasData = (Nbr > 0)
+    
+End Function
+
+Public Function m_DataMdb_Folder(Optional HKey As Long) As String
+'    Gives the folder where the DataMdb file should be.
+    
+3       Dim Folder  As String
+    
+5       If HKey = 0 Then
+'        zzz        Folder = "" & m_Reg_ValueGetQuick(c_vReg_LocalMachine, m_AccVer(cz_vReg_ProgPath), c_vReg_DataDir)
+7           Folder = "" & m_Reg_ValueGetQuick(c_vReg_LocalMachine, cz_vReg_ProgPath, c_vReg_DataDir)
+8       Else
+9           Folder = "" & m_Reg_ValueGet(HKey, c_vReg_DataDir) ' Null has happend yet in beta versions
+10      End If
+    
+12      If Len(Folder) < 3 Then
+13          Folder = m_File_GetFolder(CodeDb.Name)
+14      Else
+15          If Not m_Folder_IsExisting(Folder) Then
+16              Folder = m_File_GetFolder(CodeDb.Name)
+17          End If
+18      End If
+    
+20      m_DataMdb_Folder = Folder
+    
+End Function
+
+Public Function m_DataMdb_FullPath(Optional HKey As Long) As String
+'    Gives the full path where the DataMdb file should be.
+    
+'    zzz    m_DataMdb_FullPath = m_Folder_CheckEnd(m_DataMdb_Folder(HKey), True) & m_AccVer(cz_vDataFile) & m_AccExt()
+4       m_DataMdb_FullPath = m_Folder_CheckEnd(m_DataMdb_Folder(HKey), True) & cz_vDataFile & m_AccExt()
+    
+End Function
+
+Public Sub m_DataMdb_Move(OldPath As String, NewFolder As String)
+    
+2       Dim NewPath As String
+    
+'    zzz    NewPath = NewFolder & "\" & m_AccVer(cz_vDataFile) & m_AccExt()
+5       NewPath = NewFolder & "\" & cz_vDataFile & m_AccExt()
+    
+7       If OldPath <> NewPath Then
+        
+9           If m_File_IsExisting(OldPath) Then
+10              If Not m_File_IsExisting(NewPath) Then
+11                  m_File_Copy OldPath, NewPath
+12                  m_File_Delete OldPath
+13              End If
+14          End If
+        
+'        zzz        m_Reg_ValueSetQuick c_vReg_LocalMachine, m_AccVer(cz_vReg_ProgPath), c_vReg_DataDir, NewFolder, REG_SZ
+17          m_Reg_ValueSetQuick c_vReg_LocalMachine, cz_vReg_ProgPath, c_vReg_DataDir, NewFolder, REG_SZ
+        
+19      End If
+    
+End Sub
+
+Private Function p_Table_Existes(Con As ADODB.Connection, TableName As String) As Boolean
+'    Returns True if the table specified does existes in the database
+    
+3       Dim rs As ADODB.Recordset
+    
+5       p_Table_Existes = False
+    
+7       Set rs = Con.OpenSchema(adSchemaTables) 'Open recordset containing table's information
+8       With rs
+9           Do Until .EOF Or (p_Table_Existes = True)
+10              If !TABLE_NAME = TableName Then
+11                  p_Table_Existes = True
+12              End If
+13              .MoveNext
+14          Loop
+15          .Close
+16      End With
+    
+End Function
+
+Private Sub p_Table_Create(Con As ADODB.Connection, TableName As String)
+'    Creates the specified table in the mdb
+    
+3       Dim Sql As String
+    
+5       Select Case TableName
+    Case c_Mdb_FormTemplate
+        
+8           Sql = ""
+9           Sql = Sql & "CREATE TABLE [" & c_Mdb_FormTemplate & "] ("
+10          Sql = Sql & "[Id]       INTEGER,"         'Long
+11          Sql = Sql & "[Property] VARCHAR (255),"   'Text
+12          Sql = Sql & "[PValue]   VARCHAR (255)"    'Text
+13          Sql = Sql & ") "
+14          Con.Execute Sql
+        
+16          Sql = "CREATE INDEX [idx_Id] ON [" & c_Mdb_FormTemplate & "] ([Id])"
+17          Con.Execute Sql
+        
+19      Case c_Mdb_PersonalObject
+        
+21          Sql = ""
+22          Sql = Sql & "CREATE TABLE [" & c_Mdb_PersonalObject & "] ("
+23          Sql = Sql & "[Id]      IDENTITY (1,1) CONSTRAINT primarykey PRIMARY KEY,"
+24          Sql = Sql & "[Type]    SMALLINT,"        'Integer
+25          Sql = Sql & "[Name]    VARCHAR (255),"   'Text
+26          Sql = Sql & "[Version] VARCHAR (255),"   'Text
+27          Sql = Sql & "[Date]    DATETIME,"        'Date
+28          Sql = Sql & "[Data]    TEXT"             'LongBinary
+29          Sql = Sql & ") "
+30          Con.Execute Sql
+        
+32      End Select
+    
+End Sub

@@ -1,0 +1,70 @@
+Option Compare Database
+Option Explicit
+
+Public Function VBAversion() As String
+'    Ref: http://msdn.microsoft.com/en-us/library/ff700513(office.11).aspx
+    
+    #If VBA7 Then
+4       VBAversion = "VBA7"
+    #ElseIf VBA6 Then
+6       VBAversion = "VBA6"
+    #Else
+8       VBAversion = "VBA Not 6 or 7"
+    #End If
+    
+End Function
+
+Public Function Office32or64() As String
+'    Ref: http://msdn.microsoft.com/en-us/library/ff700513(office.11).aspx
+    
+    #If Win64 Then
+'    Debug.Print "64"
+5       Office32or64 = "64"
+    #Else
+'    Debug.Print "32"
+8       Office32or64 = "32"
+    #End If
+    
+End Function
+
+Public Sub GetReferences()
+'    Ref: http://vbadud.blogspot.com/2008/04/get-references-of-vba-project.html
+'    Ref: http://www.pcreview.co.uk/forums/type-property-reference-object-vbulletin-project-t3793816.html
+    
+4       Dim i As Integer
+5       Dim RefName As String
+6       Dim RefDesc As String
+7       Dim blnRefBroken As Boolean
+8       Dim vbaProj As Object
+    
+10      Set vbaProj = Application.VBE.ActiveVBProject
+11      Debug.Print vbaProj.Name
+12      Debug.Print "vbaProj.Type='" & vbaProj.Type & "'"
+'    Display the versions of Access, ADO and DAO
+14      Debug.Print "Access version = " & Application.VERSION
+15      Debug.Print "ADO (ActiveX Data Object) version = " & CurrentProject.Connection.VERSION
+16      Debug.Print "DAO (DbEngine)  version = " & Application.DBEngine.VERSION
+17      Debug.Print "DAO (CodeDb)    version = " & Application.CodeDb.VERSION
+18      Debug.Print "DAO (CurrentDb) version = " & Application.CurrentDb.VERSION
+19      Debug.Print "References:"
+    
+21      For i = 1 To vbaProj.References.count
+        
+23          blnRefBroken = False
+        
+'        Get the Name of the Reference
+26          RefName = vbaProj.References(i).Name
+        
+'        Get the Description of Reference
+29          RefDesc = vbaProj.References(i).description
+        
+31          Debug.Print vbaProj.References(i).Name, vbaProj.References(i).description
+        
+'        Returns a Boolean value indicating whether or not the Reference object points to a valid reference in the registry. Read-only.
+34          If Application.VBE.ActiveVBProject.References(i).IsBroken = True Then
+35              blnRefBroken = True
+36              Debug.Print vbaProj.References(i).Name, "blnRefBroken=" & blnRefBroken
+37          End If
+38      Next
+    
+End Sub

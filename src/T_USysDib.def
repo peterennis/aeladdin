@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<TableDef name="USysDib" foreign="False">
+  <Properties/>
+  <SQL>CREATE TABLE [USysDib] (
+[dib_version] SHORT NOT NULL DEFAULT 0,
+[dib_num] LONG DEFAULT 0,
+[dib_id] LONG NOT NULL DEFAULT 0,
+[dib_str] TEXT (116) NOT NULL Default '""');</SQL>
+  <Attributes value="0">
+    <dbHiddenObject value="False"/>
+    <dbAttachExclusive value="False"/>
+    <dbAttachSavePWD value="False"/>
+    <dbAttachedODBC value="False"/>
+    <dbAttachedTable value="False"/>
+    <dbSystemObject value="False"/>
+  </Attributes>
+  <FieldDefs>
+    <Field_0 name="dib_version">
+      <Value name="Value" type="3"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1033"/>
+      <Type name="Type" type="3" value="3"/>
+      <Name name="Name" type="12" value="dib_version"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="0"/>
+      <Size name="Size" type="4" value="2"/>
+      <SourceField name="SourceField" type="12" value="dib_version"/>
+      <SourceTable name="SourceTable" type="12" value="USysDib"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="3"/>
+      <VisibleValue name="VisibleValue" type="3"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_0>
+    <Field_1 name="dib_num">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1033"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="dib_num"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="1"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="dib_num"/>
+      <SourceTable name="SourceTable" type="12" value="USysDib"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_1>
+    <Field_2 name="dib_id">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1033"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="dib_id"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="2"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="dib_id"/>
+      <SourceTable name="SourceTable" type="12" value="USysDib"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_2>
+    <Field_3 name="dib_str">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1033"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="dib_str"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="3"/>
+      <Size name="Size" type="4" value="116"/>
+      <SourceField name="SourceField" type="12" value="dib_str"/>
+      <SourceTable name="SourceTable" type="12" value="USysDib"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="2070"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_3>
+  </FieldDefs>
+</TableDef>

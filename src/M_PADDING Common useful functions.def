@@ -1,0 +1,139 @@
+Option Compare Database
+Option Explicit
+
+Private Declare Function api_GetTempPath Lib "kernel32" Alias "GetTempPathA" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
+
+Public Function m_File_GetFolder(FileFullPath As String) As String
+'    Returns the folder path of the specified file.
+    
+3       Dim i As Integer
+    
+5       m_File_GetFolder = FileFullPath
+6       i = Len(FileFullPath)
+7       Do Until i = 0
+8           If Mid$(FileFullPath, i, 1) = "\" Then
+9               m_File_GetFolder = Left$(FileFullPath, i - 1)
+10              i = 1
+11          Else
+12              i = i - 1
+13          End If
+14      Loop
+    
+End Function
+
+Public Function m_File_IsExisting(FileFullPath As String) As Boolean
+'    Returns True if the File specified does existes.
+    
+3       Dim x As String
+    
+5       m_File_IsExisting = False
+6       On Error Resume Next
+7       x = Dir$(FileFullPath) ' Since Access 2007, (Obj.Prop="x") can return true if Prop doesn't exist
+8       m_File_IsExisting = (x <> "")
+    
+End Function
+
+Public Function m_File_Delete(FileFullPath As String) As Boolean
+    
+2       On Error GoTo Err_File_Delete
+    
+4       Kill FileFullPath
+5       m_File_Delete = True
+    
+7 End_File_Delete:
+    Exit Function
+    
+10 Err_File_Delete:
+11      m_File_Delete = False
+12      Resume End_File_Delete
+    
+End Function
+
+Public Function m_File_Copy(SrcFile As String, DstFile As String)
+    
+2       Const c_Len = 32000
+    
+4       Dim SrcNum As Integer
+5       Dim DstNum As Integer
+6       Dim f_Len As Long
+7       Dim f_End As Long
+    
+'    Dim x As String * c_Len '(the lenght of the variable is necessary fot the Get instruction)
+10      ReDim x(c_Len - 1) As Byte ' for Japanese localize, tip sent by Yu-Tang
+11      Dim i As Long
+    
+13      SrcNum = FreeFile()
+14      Open SrcFile For Binary Access Read As #SrcNum Len = c_Len
+15      DstNum = FreeFile()
+16      Open DstFile For Binary Access Write As #DstNum Len = c_Len '(the Binary mode is necessary in order to not add the lenght of the variable with the Put instruction)
+    
+'    Save pieces of the data with packages of 32000 bytes
+19      f_Len = LOF(SrcNum)
+20      For i = 1 To (f_Len \ c_Len)
+21          Get #SrcNum, , x
+22          Put #DstNum, , x
+23      Next i
+    
+'    Save the last package
+26      f_End = (f_Len Mod c_Len)
+27      If f_End > 0 Then
+28          ReDim x(f_End - 1) As Byte ' for Japanese localize, tip sent by Yu-Tang
+29          Get #SrcNum, , x
+30          Put #DstNum, , x
+31      End If
+    
+33      Close #SrcNum
+34      Close #DstNum
+    
+End Function
+
+Public Function m_Folder_CheckEnd(FolderPath As String, EndWithSep As Boolean) As String
+'    This function add the '\' at this end of the Directory path only if it is missing.
+    
+3       Const c_Sep = "\"
+    
+5       If Right(FolderPath, 1) = c_Sep Then
+6           If EndWithSep Then
+7               m_Folder_CheckEnd = FolderPath
+8           Else
+9               m_Folder_CheckEnd = Left$(FolderPath, Len(FolderPath) - 1)
+10          End If
+11      Else
+12          If EndWithSep Then
+13              m_Folder_CheckEnd = FolderPath & c_Sep
+14          Else
+15              m_Folder_CheckEnd = FolderPath
+16          End If
+17      End If
+    
+End Function
+
+Public Function m_Folder_IsExisting(FolderPath As String) As Boolean
+'    Returns True if the specified folder does existes.
+    
+3       Dim x As String
+    
+5       m_Folder_IsExisting = False
+6       On Error Resume Next
+7       x = Dir$(FolderPath, vbDirectory) ' Since Access 2007, (Obj.Prop="x") can return true if Prop doesn't exist
+8       m_Folder_IsExisting = (x <> "")
+    
+End Function
+
+Public Function m_Folder_GetTmp() As String
+    
+2       Const MAX_PATH = 260
+    
+4       Dim x As String
+5       Dim r As Long
+    
+7       x = String$(MAX_PATH, 0)
+8       r = api_GetTempPath(MAX_PATH, x)
+    
+10      If r <> 0 Then
+11          m_Folder_GetTmp = Left$(x, InStr(x, Chr$(0)) - 1)
+12      Else
+13          m_Folder_GetTmp = ""
+14      End If
+    
+End Function

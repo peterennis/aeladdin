@@ -1,0 +1,358 @@
+Option Compare Database
+Option Explicit
+
+Public Const REG_SZ As Long = 1
+Public Const REG_EXPAND_SZ As Long = 2
+Public Const REG_BINARY As Long = 3
+Public Const REG_DWORD As Long = 4
+
+Private Const HKEY_CLASSES_ROOT = &H80000000
+Private Const HKEY_CURRENT_USER = &H80000001
+Private Const HKEY_LOCAL_MACHINE = &H80000002
+Private Const HKEY_USERS = &H80000003
+
+Private Const ERROR_NONE = 0
+Private Const ERROR_BADDB = 1
+Private Const ERROR_BADKEY = 2
+Private Const ERROR_CANTOPEN = 3
+Private Const ERROR_CANTREAD = 4
+Private Const ERROR_CANTWRITE = 5
+Private Const ERROR_OUTOFMEMORY = 6
+Private Const ERROR_ARENA_TRASHED = 7
+Private Const ERROR_ACCESS_DENIED = 8
+Private Const ERROR_INVALID_PARAMETERS = 87
+Private Const ERROR_NO_MORE_ITEMS = 259
+
+Private Const REG_OPTION_NON_VOLATILE = 0
+
+Const SYNCHRONIZE = &H100000
+Const STANDARD_RIGHTS_READ = &H20000
+Const STANDARD_RIGHTS_WRITE = &H20000
+Const STANDARD_RIGHTS_EXECUTE = &H20000
+Const STANDARD_RIGHTS_REQUIRED = &HF0000
+Const STANDARD_RIGHTS_ALL = &H1F0000
+Const KEY_QUERY_VALUE = &H1
+Const KEY_SET_VALUE = &H2
+Const KEY_CREATE_SUB_KEY = &H4
+Const KEY_ENUMERATE_SUB_KEYS = &H8
+Const KEY_NOTIFY = &H10
+Const KEY_CREATE_LINK = &H20
+
+Public Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
+Public Const KEY_ALL_ACCESS = &H3F
+
+
+Private Declare Function api_RegCloseKey Lib "advapi32.dll" Alias "RegCloseKey" (ByVal HKey As Long) As Long
+Private Declare Function api_RegCreateKeyEx Lib "advapi32.dll" Alias "RegCreateKeyExA" (ByVal HKey As Long, ByVal lpSubKey As String, ByVal Reserved As Long, ByVal lpClass As String, ByVal dwOptions As Long, ByVal samDesired As Long, ByVal lpSecurityAttributes As Long, phkResult As Long, lpdwDisposition As Long) As Long
+
+Private Declare Function api_RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" (ByVal HKey As Long, ByVal lpSubKey As String, ByVal ulOptions As Long, ByVal samDesired As Long, phkResult As Long) As Long
+
+Private Declare Function api_RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal HKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
+
+Private Declare Function api_RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal HKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, lpData As Long, lpcbData As Long) As Long
+
+Private Declare Function api_RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal HKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
+
+Private Declare Function api_RegSetValueExString Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal HKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, ByVal lpValue As String, ByVal cbData As Long) As Long
+
+Private Declare Function api_RegSetValueExLong Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal HKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, lpValue As Long, ByVal cbData As Long) As Long
+
+Private Declare Function api_RegEnumValue Lib "advapi32.dll" Alias "RegEnumValueA" (ByVal HKey As Long, ByVal dwIndex As Long, ByVal lpValueName As String, lpcbValueName As Long, ByVal lpReserved As Long, lpType As Long, lpData As Any, lpcbData As Long) As Long
+
+Private Declare Function api_RegEnumKey Lib "advapi32.dll" Alias "RegEnumKeyA" (ByVal HKey As Long, ByVal dwIndex As Long, ByVal lpName As String, ByVal CbName As Long) As Long
+
+Private Declare Function api_RegDeleteValue Lib "advapi32.dll" Alias "RegDeleteValueA" (ByVal HKey As Long, ByVal lpValueName As String) As Long
+
+Private Declare Function api_RegDeleteKey Lib "advapi32.dll" Alias "RegDeleteKeyA" (ByVal HKey As Long, ByVal lpSubKey As String) As Long
+
+Private Declare Function api_ExpandEnvironmentStrings Lib "kernel32" Alias "ExpandEnvironmentStringsA" (ByVal lpSrc As String, ByVal lpDst As String, ByVal nSize As Long) As Long
+
+Public Function m_Reg_KeyDelete(HKey As Long, sKeyToDelete As String) As Boolean
+'    Delete a Key and all its SubKeys.
+'    Returns True if the operation succeeds.
+    
+4       Dim lRetVal As Long      'result
+    
+6       lRetVal = api_RegDeleteKey(HKey, sKeyToDelete)
+    
+8       m_Reg_KeyDelete = (lRetVal = ERROR_NONE)
+    
+End Function
+
+Public Function m_Reg_ValueDelete(HKey As Long, ValueToDelete As String) As Boolean
+'    Delete a Value of a Key.
+'    Returns True if the operation succeeds.
+    
+4       Dim lRetVal As Long      'result
+    
+6       lRetVal = api_RegDeleteValue(HKey, ValueToDelete)
+    
+8       m_Reg_ValueDelete = (lRetVal = ERROR_NONE)
+    
+End Function
+Public Function m_Reg_KeyCreate(PredefinedKey As String, KeyName As String) As Long
+'    Create a Key (and all Key needed if not existing).
+'    Ex : m_Reg_KeyCreate("LM", "Software\aaa\bbb\ccc")
+    
+4       Dim HKey As Long            'handle to the new key
+5       Dim lRetVal As Long         'result of the RegCreateKeyEx function
+    
+'    If the key allready exists, there is no error and the key is open correctly on HKey handle
+8       lRetVal = api_RegCreateKeyEx(p_PredifinedKey(PredefinedKey), KeyName, 0&, vbNullString, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0&, HKey, lRetVal)
+    
+10      If (lRetVal = ERROR_NONE) Then
+11          m_Reg_KeyCreate = HKey
+12      Else
+13          m_Reg_KeyCreate = 0
+14      End If
+    
+End Function
+
+Public Function m_Reg_ValueSet(HKey As Long, ValueName As String, ValueSetting As Variant, lValueType As Long) As Boolean
+    
+'    Set a Value for a key allready openned
+    
+4       Dim lRetVal As Long      'result of the SetValueEx function
+    
+6       lRetVal = p_SetValueEx(HKey, ValueName, lValueType, ValueSetting)
+    
+8       m_Reg_ValueSet = (lRetVal = ERROR_NONE)
+    
+End Function
+
+Public Function m_Reg_ValueSetQuick(PredefinedKey As String, KeyName As String, ValueName As String, ValueSetting As Variant, lValueType As Long) As Boolean
+    
+'    Set a Value
+    
+4       Dim HKey As Long
+    
+6       HKey = m_Reg_KeyOpen(PredefinedKey, KeyName, KEY_ALL_ACCESS)
+    
+8       If (HKey <> 0) Then
+9           m_Reg_ValueSetQuick = m_Reg_ValueSet(HKey, ValueName, ValueSetting, lValueType)
+10          m_Reg_KeyClose HKey
+11      Else
+12          m_Reg_ValueSetQuick = False
+13      End If
+    
+End Function
+
+Public Function m_Reg_ValueGet(HKey As Long, Optional ValueName As String) As Variant
+'    Returns the value of the Key.
+'    Returns Null if the Key doesn't exist.
+'    Returns the Default Value id ValuName is "" or is missing.
+    
+5       Dim lRetVal As Long         'result of the API functions
+6       Dim xValue As Variant       'setting of queried value
+    
+8       lRetVal = p_QueryValueEx(HKey, ValueName, xValue)
+    
+10      If lRetVal = ERROR_NONE Then
+11          m_Reg_ValueGet = xValue
+12      Else
+13          m_Reg_ValueGet = Null
+14      End If
+    
+End Function
+
+Public Function m_Reg_ValueGetQuick(PredefinedKey As String, KeyName As String, Optional ValueName As String) As Variant
+    
+'    Returns the value of the Key.
+'    Returns Null if the Key doesn't exist.
+'    Returns the Default Value id ValuName is "" or is missing.
+    
+6       Dim HKey As Long
+    
+8       HKey = m_Reg_KeyOpen(PredefinedKey, KeyName, KEY_READ)
+9       If HKey <> 0 Then
+10          m_Reg_ValueGetQuick = m_Reg_ValueGet(HKey, ValueName)
+11          m_Reg_KeyClose HKey
+12      Else
+13          m_Reg_ValueGetQuick = Null
+14      End If
+    
+End Function
+
+Private Function p_SetValueEx(ByVal HKey As Long, ValueName As String, lType As Long, xValue As Variant) As Long
+'    Writes a Value (String or DWord).
+    
+3       Dim lValue As Long
+4       Dim sValue As String
+    
+6       Select Case lType
+    Case REG_SZ, REG_EXPAND_SZ
+8           sValue = xValue & Chr$(0)
+9           p_SetValueEx = api_RegSetValueExString(HKey, ValueName, 0&, lType, sValue, Len(sValue))
+10      Case REG_DWORD
+11          lValue = xValue
+12          p_SetValueEx = api_RegSetValueExLong(HKey, ValueName, 0&, lType, lValue, 4)
+13      End Select
+    
+End Function
+
+Private Function p_QueryValueEx(ByVal lhKey As Long, ByVal szValueName As String, xValue As Variant) As Long
+'    Returns the data of a Value (for a given Kay).
+    
+3       Dim cch     As Long
+4       Dim lrc     As Long
+5       Dim lType   As Long
+6       Dim lValue  As Long
+7       Dim sValue  As String
+    
+9       On Error GoTo QueryValueExError
+    
+'    Determine the size and type of data to be read
+12      lrc = api_RegQueryValueExNULL(lhKey, szValueName, 0&, lType, 0&, cch)
+13      If lrc <> ERROR_NONE Then Error 5
+    
+15      Select Case lType
+'        For strings
+    Case REG_SZ, REG_EXPAND_SZ
+18          sValue = String(cch, 0)
+19          lrc = api_RegQueryValueExString(lhKey, szValueName, 0&, lType, sValue, cch)
+20          If lrc = ERROR_NONE Then
+21              xValue = Left$(sValue, cch - 1)
+22              If lType = REG_EXPAND_SZ Then
+23                  xValue = m_Reg_ExpandString("" & xValue)
+24              End If
+25          End If
+'        For DWORDS
+27      Case REG_DWORD
+28          lrc = api_RegQueryValueExLong(lhKey, szValueName, 0&, lType, lValue, cch)
+29          If lrc = ERROR_NONE Then
+30              xValue = lValue
+31          End If
+32      Case Else
+'        all other data types not supported
+34      End Select
+    
+36 QueryValueExExit:
+37      p_QueryValueEx = lrc
+    Exit Function
+    
+40 QueryValueExError:
+41      Resume QueryValueExExit
+    
+End Function
+
+Private Function p_PredifinedKey(PredifinedKey As String) As Long
+'    Returns the Id of a predifined Key.
+'    Both Nikename or Long name can be given.
+    
+4       Dim x As Long
+    
+6       Select Case PredifinedKey
+    Case "CR", "HKEY_CLASSES_ROOT"
+8           x = HKEY_CLASSES_ROOT
+9       Case "CU", "HKEY_CURRENT_USER"
+10          x = HKEY_CURRENT_USER
+11      Case "LM", "HKEY_LOCAL_MACHINE"
+12          x = HKEY_LOCAL_MACHINE
+13      Case "U", "HKEY_USERS"
+14          x = HKEY_USERS
+15      Case Else
+16          x = HKEY_CURRENT_USER
+17      End Select
+    
+19      p_PredifinedKey = x
+    
+End Function
+
+Public Function m_Reg_ValueEnum(HKey As Long, Item As Long) As String
+'    Returns tha Name of the Item# Value of the openned Key (better if the key is open with KEY_READ mode)..
+'    The first Value is item 0.
+'    The Default Value is never given (its name is "").
+'    Returns "" if the item is over the number of Values in the Key.
+    
+6       Dim lRetVal       As Long
+7       Dim ValueName    As String
+8       Dim lValueNameLen As Long
+9       Dim lData         As Long
+10      Dim lDataLen      As Long
+11      Dim lValueType    As Long
+    
+13      lValueNameLen = 2000
+14      ValueName = String(lValueNameLen, 0)
+15      lDataLen = 2000
+    
+17      lRetVal = api_RegEnumValue(HKey, Item, ByVal ValueName, lValueNameLen, 0&, lValueType, ByVal lData, lDataLen)
+    
+19      If lRetVal = ERROR_NONE Then
+20          m_Reg_ValueEnum = Left(ValueName, lValueNameLen)
+21      Else
+22          m_Reg_ValueEnum = ""
+23      End If
+    
+End Function
+
+Public Function m_Reg_KeyEnum(HKey As Long, Item As Long) As String
+'    Returns the name of the Item# SubKey of the openned Key (better if the key is open with KEY_READ mode).
+'    The first SubKey is item 0.
+'    Returns "" if the item is over the number of SubKeys in the Key.
+    
+5       Dim lRetVal       As Long
+6       Dim sSubKeyName    As String
+7       Dim lSubKeyNameLen As Long
+    
+9       lSubKeyNameLen = 2000
+10      sSubKeyName = String(lSubKeyNameLen, 0)
+    
+12      lRetVal = api_RegEnumKey(HKey, Item, ByVal sSubKeyName, lSubKeyNameLen)
+    
+14      If lRetVal = ERROR_NONE Then
+15          m_Reg_KeyEnum = Left(sSubKeyName, lSubKeyNameLen)
+16      Else
+17          m_Reg_KeyEnum = vbNullString
+18      End If
+    
+End Function
+
+Public Function m_Reg_KeyClose(HKey As Long) As Boolean
+'    Close an open key, and returns True if succeed
+    
+3       Dim lRetVal As Long
+    
+5       lRetVal = api_RegCloseKey(HKey)
+    
+7       If lRetVal = ERROR_NONE Then
+8           m_Reg_KeyClose = True
+9       End If
+    
+End Function
+
+Public Function m_Reg_KeyOpen(PredefinedKey As String, KeyName As String, Optional AccessMode As Long) As Long
+'    Open a key and returns the handle
+    
+3       Dim HKey    As Long
+4       Dim lRetVal As Long
+    
+6       If AccessMode = 0 Then
+7           AccessMode = KEY_ALL_ACCESS
+8       End If
+    
+10      lRetVal = api_RegOpenKeyEx(p_PredifinedKey(PredefinedKey), KeyName, 0, AccessMode, HKey)
+    
+12      If lRetVal = ERROR_NONE Then
+13          m_Reg_KeyOpen = HKey
+14      End If
+    
+End Function
+
+Public Function m_Reg_ExpandString(Txt As String) As String
+    
+2       Dim lrc     As Long
+3       Dim sValue  As String
+4       Dim Pos     As Long
+    
+6       sValue = String(Len(Txt) + 400, Chr$(0))
+7       lrc = api_ExpandEnvironmentStrings(Txt, sValue, Len(sValue))
+8       If (lrc > 0) Then
+9           Pos = InStr(sValue, Chr$(0))
+10          sValue = Left$(sValue, Pos - 1)
+11      Else
+12          sValue = ""
+13      End If
+    
+15      m_Reg_ExpandString = sValue
+    
+End Function

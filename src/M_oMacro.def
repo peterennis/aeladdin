@@ -1,0 +1,127 @@
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+' This object enables reading of Macro parameters
+' From Access 2000, parts of the Access API that used to exist in Acc97 are not available anymore.
+' Those functions are replaced by some WizHook function.
+' WizHook is a new hidden feature that appears in Access 2000.
+' To see it, you have to go int the Object Explorer and choose 'Show hiden members'.
+' Then you have to activate it with a key, this key is 51488399.
+' If you don't activate the key, all WizHook functions returns 0.
+
+Private Declare Function api_Script_Open Lib "msaccess.exe" Alias "#18" (ByVal lpszScript As String, ByVal lpszLabel As Any, ByVal smode As Long, pgrfExtra As Long, psmv As Long) As Long
+Private Declare Sub api_Script_Close Lib "msaccess.exe" Alias "#20" (ByVal Hscr As Long)
+Private Declare Sub api_Script_Rewind Lib "msaccess.exe" Alias "#19" (ByVal Hscr As Long)
+Private Declare Function api_Script_NextRow Lib "msaccess.exe" Alias "#22" (ByVal Hscr As Long, ByVal fSkipBlank As Long, pfEndOfScript As Long) As Long
+' 0& : Label, 1& : Comment, 2& : Condition, 3&-12& : Arguments
+Private Declare Function api_Script_GetPart Lib "msaccess.exe" Alias "#23" (ByVal Hscr As Long, ByVal iscc As Long, ByVal lpsz As String, ByVal cchMax As Long) As Long
+Private Declare Function api_Script_SetPart Lib "msaccess.exe" Alias "#24" (ByVal Hscr As Long, ByVal iscc As Long, ByVal lpsz As String) As Long
+Private Declare Function api_Script_GetActId Lib "msaccess.exe" Alias "#29" (ByVal Hscr As Long) As Long
+Private Declare Function api_Script_GetActArgNbr Lib "msaccess.exe" Alias "#30" (ByVal ActId As Long) As Long
+
+Dim Hscr        As Long
+Dim EndOfScript As Long
+Dim pName       As String
+Dim ActId       As Long
+Dim ActNbr      As Long
+
+Public Function OpenMacro(MacroName As String) As Boolean
+    
+2       Dim Mac_VVersion    As Long
+3       Dim Mac_Extra       As Long
+4       Dim Mac_Label       As String
+    
+6       WizHook.Key = 51488399
+    
+8       If Hscr <> 0 Then
+9           CloseMacro
+10      End If
+    
+12      Hscr = 0
+13      EndOfScript = 0
+14      ActNbr = 0
+15      ActId = 0
+    
+17      Hscr = WizHook.OpenScript(MacroName, Mac_Label, 0&, Mac_Extra, Mac_VVersion)
+    
+19      If Hscr <> 0 Then
+20          pName = MacroName
+21          Me.NextAction
+22          OpenMacro = True
+23      End If
+    
+End Function
+
+Public Sub CloseMacro()
+    
+2       api_Script_Close Hscr
+3       Hscr = 0
+4       EndOfScript = True
+5       ActNbr = 0
+6       ActId = 0
+7       pName = vbNullString
+    
+End Sub
+
+Public Sub NextAction()
+    
+2       If (Hscr <> 0) And (Not EndOfScript) Then
+3           api_Script_NextRow Hscr, False, EndOfScript
+4           ActId = api_Script_GetActId(Hscr)
+5           ActNbr = ActNbr + 1
+6       End If
+    
+End Sub
+
+Public Function EndOfMacro() As Boolean
+1       EndOfMacro = EndOfScript
+End Function
+
+Public Function Name() As String
+1       Name = pName
+End Function
+
+Public Function CurrAct_Index() As Long
+1       CurrAct_Index = ActNbr
+End Function
+
+Public Function CurrAct_ArgNbr() As Long
+1       CurrAct_ArgNbr = WizHook.ArgsOfActid(ActId)
+End Function
+
+Public Function CurrAct_Name() As String
+1       CurrAct_Name = WizHook.NameFromActid(ActId)
+End Function
+
+Public Function CurrAct_Label() As String
+1       CurrAct_Label = p_GetScriptString(0)
+End Function
+
+Public Function CurrAct_Comment() As String
+1       CurrAct_Comment = p_GetScriptString(1)
+End Function
+
+Public Function CurrAct_Condition() As String
+1       CurrAct_Condition = p_GetScriptString(2)
+End Function
+
+Public Function CurrAct_Parameter(PrmIndex As Long) As String
+1       CurrAct_Parameter = p_GetScriptString(2 + PrmIndex)
+End Function
+
+Private Function p_GetScriptString(index As Long) As String
+    
+2       Dim x As String
+    
+4       If WizHook.GetScriptString(Hscr, index, x) Then
+5       Else
+6           x = vbNullString
+7       End If
+    
+9       p_GetScriptString = x
+    
+End Function

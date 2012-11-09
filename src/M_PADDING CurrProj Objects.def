@@ -1,0 +1,259 @@
+Option Compare Database
+Option Explicit
+
+Public g_CurrDb    As Object 'The CurrentDb() object has to be keeped in a varibale. It is nesessary for the m_CurrProj_OBjOpen() function
+Public g_TableDefs As Object
+Public g_QueryDefs As Object
+
+Public Sub m_CurrDb_Init()
+    
+2       If g_CurrDb Is Nothing Then
+3           Set g_CurrDb = CurrentDb()
+4           If CurrentProject.ProjectType = acMDB Then
+5               Set g_TableDefs = g_CurrDb.TableDefs
+6               Set g_QueryDefs = g_CurrDb.QueryDefs
+7           End If
+8       End If
+    
+End Sub
+
+Public Function m_CurrProj_IsMDE() As Boolean
+    
+2       On Error Resume Next
+    
+4       Dim x As String
+    
+6       m_CurrProj_IsMDE = False
+7       x = CurrentDb.Properties("MDE") ' Since Access 2007, (Obj.Prop="x") can return true if Prop doesn't exist
+8       m_CurrProj_IsMDE = (x = "T")
+    
+End Function
+
+Public Function m_CurrProj_CanReadDef(ObjType As AcObjectType, ObjName As String) As Boolean
+    
+2       Const dbSecReadDef = 4
+    
+4       Dim p        As Long
+5       Dim ContName As String
+    
+7       Select Case ObjType
+    Case acTable: ContName = "Tables"
+9       Case acQuery: ContName = "Tables"
+10      Case acForm: ContName = "Forms"
+11      Case acReport: ContName = "Reports"
+12      Case acMacro: ContName = "Scripts"
+13      Case acModule: ContName = "Modules"
+14      Case acDataAccessPage: ContName = "DataAccessPages"
+15      End Select
+    
+17      p = g_CurrDb.Containers(ContName).Documents(ObjName).AllPermissions
+18      m_CurrProj_CanReadDef = ((p And dbSecReadDef) = dbSecReadDef)
+    
+End Function
+
+Public Function m_CurrProj_CanWriteDef(ObjType As AcObjectType, ObjName As String) As Boolean
+    
+2       Const dbSecWriteDef = 65548
+    
+4       Dim p        As Long
+5       Dim ContName As String
+    
+7       Select Case ObjType
+    Case acTable: ContName = "Tables"
+9       Case acQuery: ContName = "Tables"
+10      Case acForm: ContName = "Forms"
+11      Case acReport: ContName = "Reports"
+12      Case acMacro: ContName = "Scripts"
+13      Case acModule: ContName = "Modules"
+14      Case acDataAccessPage: ContName = "DataAccessPages"
+15      End Select
+    
+17      p = g_CurrDb.Containers(ContName).Documents(ObjName).AllPermissions
+18      m_CurrProj_CanWriteDef = ((p And dbSecWriteDef) = dbSecWriteDef)
+    
+End Function
+
+Public Sub m_CurrProj_FillObjList(ByRef ObjLst() As String, ByRef ObjNbr As Long, ObjType As AcObjectType, Optional CountNeverSavedObjects As Boolean)
+    
+2       Dim i      As Long
+3       Dim j      As Long
+4       Dim x      As String
+    
+6       ObjNbr = 0
+    
+8       Select Case ObjType
+    Case acTable
+10          With CurrentData.AllTables
+11              For i = 0 To (.count - 1)
+12                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+13              Next i
+14          End With
+15      Case acQuery
+16          With CurrentData.AllQueries
+17              For i = 0 To (.count - 1)
+18                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+19              Next i
+20          End With
+21      Case acForm
+22          With CurrentProject.AllForms
+23              For i = 0 To (.count - 1)
+24                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+25              Next i
+26          End With
+27      Case acReport
+28          With CurrentProject.AllReports
+29              For i = 0 To (.count - 1)
+30                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+31              Next i
+32          End With
+33      Case acMacro
+34          With CurrentProject.AllMacros
+35              For i = 0 To (.count - 1)
+36                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+37              Next i
+38          End With
+39      Case acModule
+40          With CurrentProject.AllModules ' Modules are sorted descending
+41              For i = 0 To (.count - 1)
+42                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+43              Next i
+44          End With
+45      Case acDataAccessPage
+46          With CurrentProject.AllDataAccessPages
+47              For i = 0 To (.count - 1)
+48                  p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+49              Next i
+50          End With
+51      End Select
+    
+'    Sort the list because items seems to be sorted a strange way
+54      For i = 1 To ObjNbr - 1
+55          j = i
+56          Do Until j < 1
+57              If ObjLst(j) < ObjLst(j - 1) Then
+58                  x = ObjLst(j - 1)
+59                  ObjLst(j - 1) = ObjLst(j)
+60                  ObjLst(j) = x
+61                  j = j - 1
+62              Else
+63                  j = 0 ' ends the loop
+64              End If
+65          Loop
+66      Next i
+    
+'    Add objects not yet saved
+69      If CountNeverSavedObjects = True Then
+        
+71          Select Case ObjType
+        Case acTable
+'            Not supported
+74          Case acQuery
+'            Not supported
+76          Case acForm
+77              With Application.Forms
+78                  For i = 0 To (.count - 1)
+79                      If (SysCmd(acSysCmdGetObjectState, ObjType, .Item(i).Name) And acObjStateNew) <> 0 Then
+80                          p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+81                      End If
+82                  Next i
+83              End With
+84          Case acReport
+85              With Application.Reports
+86                  For i = 0 To (.count - 1)
+87                      If (SysCmd(acSysCmdGetObjectState, ObjType, .Item(i).Name) And acObjStateNew) <> 0 Then
+88                          p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+89                      End If
+90                  Next i
+91              End With
+92          Case acMacro
+'            Not supported
+94          Case acModule
+95              With Application.Modules
+96                  For i = 0 To (.count - 1)
+97                      If (SysCmd(acSysCmdGetObjectState, ObjType, .Item(i).Name) And acObjStateNew) <> 0 Then
+98                          p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+99                      End If
+100                 Next i
+101             End With
+102         Case acDataAccessPage
+103             With Application.DataAccessPages
+104                 For i = 0 To (.count - 1)
+105                     If (SysCmd(acSysCmdGetObjectState, ObjType, .Item(i).Name) And acObjStateNew) <> 0 Then
+106                         p_CurrProj_ObjList_Add ObjLst(), ObjNbr, .Item(i).Name
+107                     End If
+108                 Next i
+109             End With
+110         End Select
+        
+112     End If
+    
+End Sub
+
+Private Sub p_CurrProj_ObjList_Add(ByRef ObjLst() As String, ByRef ObjNbr As Long, Item As String)
+    
+2       ReDim Preserve ObjLst(0 To ObjNbr)
+3       ObjLst(ObjNbr) = Item
+4       ObjNbr = ObjNbr + 1
+    
+End Sub
+
+Public Function m_CurrProj_ObjOpen(ObjType As AcObjectType, ObjName As String, ByRef WasOpen As Boolean, OpenObject As Object) As Boolean
+    
+2       Set OpenObject = Nothing
+3       WasOpen = False
+    
+5       On Error Resume Next
+    
+7       Select Case ObjType
+        
+    Case acTable
+        
+11          If CurrentProject.ProjectType = acMDB Then
+12              Set OpenObject = g_CurrDb.TableDefs(ObjName)
+13          End If
+        
+15      Case acQuery
+        
+17          If CurrentProject.ProjectType = acMDB Then
+18              Set OpenObject = g_CurrDb.QueryDefs(ObjName)
+19          End If
+        
+21      Case acForm
+        
+23          Set OpenObject = Forms(ObjName)
+24          If OpenObject Is Nothing Then
+'            SendKeys "{ENTER}"
+26              DoCmd.OpenForm ObjName, acDesign, , , , acHidden
+27              Set OpenObject = Forms(ObjName)
+28          Else
+29              WasOpen = True
+30          End If
+        
+32      Case acReport
+        
+34          Set OpenObject = Reports(ObjName)
+35          If OpenObject Is Nothing Then
+'            SendKeys "{ENTER}"
+37              DoCmd.OpenReport ObjName, acViewDesign
+'            DoCmd.OpenReport ObjName, acViewDesign, , , acHidden 'acHidden is available only since Access 2002
+39              Set OpenObject = Reports(ObjName)
+40          Else
+41              WasOpen = True
+42          End If
+        
+44      Case acModule
+        
+46          Set OpenObject = Modules(ObjName)
+47          If OpenObject Is Nothing Then
+'            SendKeys "{ENTER}"
+49              DoCmd.OpenModule ObjName
+50              Set OpenObject = Modules(ObjName)
+51          Else
+52              WasOpen = True
+53          End If
+        
+55      End Select
+    
+57      m_CurrProj_ObjOpen = Not (OpenObject Is Nothing)
+    
+End Function
