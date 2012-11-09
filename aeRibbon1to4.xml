@@ -1,0 +1,14 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="aeMyAddinInitialize" loadImage="LoadImages">
+  <ribbon startFromScratch="false">
+    <tabs>
+      <tab id="tab1" label="adaept" keytip="AE" tag="RibbonName:=aeRibbon1to4" > 
+        <group id="grp0" label="aeladdinA" tag="RibbonName:=aeRibbon1to4" > 
+          <button id="btn1" size="large" label="Command 1" screentip="Class Info" keytip="AE1" imageMso="_1" tag="RibbonName:=aeRibbon1to4;inMenu:=" onAction="=aeNtryPoint('btn1', 'aeClassInfo')" />
+          <button id="btn2" size="large" label="Command 2" screentip="List Modules" keytip="AE2" imageMso="_2" tag="RibbonName:=aeRibbon1to4;inMenu:=" onAction="=aeNtryPoint('btn2', 'aeListModules')" />
+          <button id="btn3" size="large" label="Command 3" screentip="Renumber" keytip="AE3" imageMso="_3" tag="RibbonName:=aeRibbon1to4;inMenu:=" onAction="=aeNtryPoint('btn3', 'aeRenumber')" />
+          <button id="btn4" size="large" label="Command 4" screentip="Search" keytip="AE4" imageMso="_4" tag="RibbonName:=aeRibbon1to4;inMenu:=" onAction="=aeNtryPoint('btn4', 'aeRunTheSearch')" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
