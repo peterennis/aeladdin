@@ -1,0 +1,143 @@
+>>>USysCodePage
+              Name          USysCodePage
+              Owner         admin
+              UserName      admin
+              Permissions    1048319 
+              AllPermissions               1048319 
+              Container     Tables
+              DateCreated   4/7/2011 4:40:25 PM 
+              LastUpdated   4/7/2011 4:40:26 PM 
+              Orientation    0 
+              OrderByOn     False
+              NameMap       Track name AutoCorrect info is ON!
+              DefaultView    2 
+              GUID          53-92-91-BA-76-17-42-AD
+              DisplayViewsOnSharePointSite               1 
+              TotalsRow     False
+              FilterOnLoad  False
+              OrderByOnLoad True
+              HideNewField  False
+              BackTint       100 
+              BackShade      100 
+              ThemeFontIndex              -1 
+              AlternateBackThemeColorIndex              -1 
+              AlternateBackTint            100 
+              AlternateBackShade           100 
+              ReadOnlyWhenDisconnected    False
+              DatasheetGridlinesThemeColorIndex         -1 
+              DatasheetForeThemeColorIndex              -1 
+>>>USysDib
+              Name          USysDib
+              Owner         admin
+              UserName      admin
+              Permissions    1048319 
+              AllPermissions               1048319 
+              Container     Tables
+              DateCreated   4/7/2011 4:40:25 PM 
+              LastUpdated   4/7/2011 4:40:26 PM 
+              Orientation    0 
+              OrderByOn     False
+              NameMap       Track name AutoCorrect info is ON!
+              DefaultView    2 
+              DisplayViewsOnSharePointSite               1 
+              TotalsRow     False
+              FilterOnLoad  False
+              OrderByOnLoad True
+              HideNewField  False
+              GUID          76-21-6D-A2-83-41-49-BE
+              BackTint       100 
+              BackShade      100 
+              ThemeFontIndex              -1 
+              AlternateBackThemeColorIndex              -1 
+              AlternateBackTint            100 
+              AlternateBackShade           100 
+              ReadOnlyWhenDisconnected    False
+              DatasheetGridlinesThemeColorIndex         -1 
+              DatasheetForeThemeColorIndex              -1 
+>>>USysMultiLanguage
+              Name          USysMultiLanguage
+              Owner         admin
+              UserName      admin
+              Permissions    1048319 
+              AllPermissions               1048319 
+              Container     Tables
+              DateCreated   4/7/2011 4:40:25 PM 
+              LastUpdated   4/7/2011 4:40:26 PM 
+              OrderByOn     False
+              RowHeight      1455 
+              Orientation    0 
+              DefaultView    2 
+              NameMap       Track name AutoCorrect info is ON!
+              DisplayViewsOnSharePointSite               1 
+              TotalsRow     False
+              FilterOnLoad  False
+              OrderByOnLoad True
+              HideNewField  False
+              GUID          23-0C-BE-58-E7-37-4A-98
+              BackTint       100 
+              BackShade      100 
+              ThemeFontIndex              -1 
+              AlternateBackThemeColorIndex              -1 
+              AlternateBackTint            100 
+              AlternateBackShade           100 
+              ReadOnlyWhenDisconnected    False
+              DatasheetGridlinesThemeColorIndex         -1 
+              DatasheetForeThemeColorIndex              -1 
+>>>USysRegInfo
+              Name          USysRegInfo
+              Owner         admin
+              UserName      admin
+              Permissions    1048319 
+              AllPermissions               1048319 
+              Container     Tables
+              DateCreated   4/7/2011 5:03:09 PM 
+              LastUpdated   4/8/2011 5:49:48 PM 
+              Orientation    0 
+              OrderByOn     False
+              NameMap       Track name AutoCorrect info is ON!
+              DefaultView    2 
+              GUID          A9-6A-BA-A3-A7-D3-44-93
+              DisplayViewsOnSharePointSite               1 
+              TotalsRow     False
+              FilterOnLoad  False
+              OrderByOnLoad True
+              HideNewField  False
+              BackTint       100 
+              BackShade      100 
+              ThemeFontIndex              -1 
+              AlternateBackThemeColorIndex              -1 
+              AlternateBackTint            100 
+              AlternateBackShade           100 
+              ReadOnlyWhenDisconnected    False
+              DatasheetGridlinesThemeColorIndex         -1 
+              DatasheetForeThemeColorIndex              -1 
+              PublishToWeb   1 
+>>>USysRibbons
+              Name          USysRibbons
+              Owner         admin
+              UserName      admin
+              Permissions    1048319 
+              AllPermissions               1048319 
+              Container     Tables
+              DateCreated   4/11/2011 11:47:45 AM 
+              LastUpdated   4/24/2011 11:08:44 PM 
+              GUID          C8-27-A8-16-B5-33-4D-A0
+              Orientation    0 
+              OrderByOn     False
+              NameMap       Track name AutoCorrect info is ON!
+              DefaultView    2 
+              DisplayViewsOnSharePointSite               1 
+              TotalsRow     False
+              FilterOnLoad  False
+              OrderByOnLoad True
+              HideNewField  False
+              BackTint       100 
+              BackShade      100 
+              ThemeFontIndex               1 
+              AlternateBackThemeColorIndex               1 
+              AlternateBackTint            100 
+              AlternateBackShade           95 
+              ReadOnlyWhenDisconnected    False
+              DatasheetGridlinesThemeColorIndex          3 
+              DatasheetForeThemeColorIndex               0 
+              PublishToWeb   1 

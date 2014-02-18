@@ -1,0 +1,35 @@
+USysCodePage
+              CodePage       109          TextBox
+              Name           109          TextBox
+              DisplayName    109          TextBox
+USysDib
+              dib_version    109          TextBox
+              dib_num        109          TextBox
+              dib_id         109          TextBox
+              dib_str        109          TextBox
+USysMultiLanguage
+              S_ObjectParent               109          TextBox
+              S_ObjectType   109          TextBox
+              S_ObjectName   109          TextBox
+              S_ObjectProperty             109          TextBox
+              S_Language_1   109          TextBox
+              S_Language_2   109          TextBox
+              S_Language_3   109          TextBox
+              S_Language_4   109          TextBox
+              S_Language_5   109          TextBox
+USysRegInfo
+              rownum         109          TextBox
+              Subkey         109          TextBox
+              Type           109          TextBox
+              ValName        109          TextBox
+              Value          109          TextBox
+USysRibbons
+              RibbonName     109          TextBox
+              RibbonXML      109          TextBox
+Count of Check box = 0
+Count of Text box  = 23
+Count of List box  = 0
+Count of Combo box = 0
+Count of Else      = 0
+Count of Display Controls = 23
+Count of All Fields = 23

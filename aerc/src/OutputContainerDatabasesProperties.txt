@@ -1,0 +1,23 @@
+>>>SummaryInfo
+              Name          SummaryInfo
+              Owner         admin
+              UserName      admin
+              Permissions    1048575 
+              AllPermissions               1048575 
+              Container     Databases
+              DateCreated   7/31/2009 2:04:43 PM 
+              LastUpdated   4/8/2011 4:55:07 PM 
+              Title         aeladdinT v009
+              Subject       aeladdin elementary add-in template
+              Author        Peter F. Ennis
+              Company       adaept information management
+>>>UserDefined
+              Name          UserDefined
+              Owner         admin
+              UserName      admin
+              Permissions    1048575 
+              AllPermissions               1048575 
+              Container     Databases
+              DateCreated   7/31/2009 2:04:43 PM 
+              LastUpdated   7/31/2009 2:04:43 PM 
+              ReplicateProject            True

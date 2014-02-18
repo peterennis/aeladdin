@@ -1,0 +1,30 @@
+>==> The Project References >==>
+              vbaProj.Name = aeladdinT v019
+              vbaProj.Type = '100'
+              Access version = 15.0
+              ADO (ActiveX Data Object) version = 6.3
+              DAO (DbEngine)  version = 15.0
+              DAO (CodeDb)    version = 14.0
+              DAO (CurrentDb) version = 14.0
+              <@_@>
+                   References:
+                            VBA           Visual Basic For Applications
+                                          C:\PROGRA~1\COMMON~1\MICROS~1\VBA\VBA7.1\VBE7.DLL
+                                          {000204EF-0000-0000-C000-000000000046}
+                            Access        Microsoft Access 15.0 Object Library
+                                          C:\Program Files\Microsoft Office\Office15\MSACC.OLB
+                                          {4AFFC9A0-5F99-101B-AF4E-00AA003F0F07}
+                            DAO           Microsoft Office 15.0 Access database engine Object Library
+                                          C:\Program Files\Common Files\Microsoft Shared\OFFICE15\ACEDAO.DLL
+                                          {4AC9E1DA-5BAD-4AC7-86E3-24F4CDCECA28}
+                            VBIDE         Microsoft Visual Basic for Applications Extensibility 5.3
+                                          C:\Program Files\Common Files\Microsoft Shared\VBA\VBA6\VBE6EXT.OLB
+                                          {0002E157-0000-0000-C000-000000000046}
+                            ADODB         Microsoft ActiveX Data Objects 2.8 Library
+                                          C:\Program Files\Common Files\System\ado\msado28.tlb
+                                          {2A75196C-D9EB-4129-B803-931327F72D5C}
+                            Office        Microsoft Office 15.0 Object Library
+                                          C:\Program Files\Common Files\Microsoft Shared\OFFICE15\MSO.DLL
+                                          {2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}
+              <*_*>
+<==<

@@ -1,0 +1,58 @@
+-------------------
+TABLE: USysCodePage
+-------------------
+FIELD NAME          FIELD TYPE      SIZE    DESCRIPTION
+================    ============    ====    ===========
+CodePage            Long Integer    4                  
+Name                Text            50                 
+DisplayName         Text            255                
+
+
+--------------
+TABLE: USysDib
+--------------
+FIELD NAME          FIELD TYPE      SIZE    DESCRIPTION
+================    ============    ====    ===========
+dib_version         Integer         2                  
+dib_num             Long Integer    4                  
+dib_id              Long Integer    4                  
+dib_str             Text            116                
+
+
+------------------------
+TABLE: USysMultiLanguage
+------------------------
+FIELD NAME          FIELD TYPE      SIZE    DESCRIPTION                                                                      
+================    ============    ====    =================================================================================
+S_ObjectParent      Text            255     for a Control : Name of the Form/Report, for a Message : id or Form/Report caller
+S_ObjectType        Text            2       F=Form, FC=Control of Form, R=Report, RC=Control of Report, M=Message            
+S_ObjectName        Text            255     for a Form/Reprort : Name, for a Control : Name, for a Message : id              
+S_ObjectProperty    Text            255     for a Control : Property's Name, for a Message : Title                           
+S_Language_1        Memo            0       English                                                                          
+S_Language_2        Memo            0       French                                                                           
+S_Language_3        Memo            0       German                                                                           
+S_Language_4        Memo            0       Portuguese                                                                       
+S_Language_5        Memo            0       Japanese                                                                         
+
+
+------------------
+TABLE: USysRegInfo
+------------------
+FIELD NAME          FIELD TYPE      SIZE    DESCRIPTION                                                                                                                                                               
+================    ============    ====    ==========================================================================================================================================================================
+rownum              AutoNumber      4                                                                                                                                                                                 
+Subkey              Text            255     The name of the registry subkey where a specific Registry setting is stored. Can be either HKEY_CURRENT_ACCESS_PROFILE or HKEY_LOCAL_MACHINE (plus the path to Office 10).
+Type                Long Integer    4       The type of entry to create. Can be key (0), string (1), or DWORD (4).                                                                                                    
+ValName             Text            255     The name of the registry value.                                                                                                                                           
+Value               Text            255     The value of the registry value.                                                                                                                                          
+
+
+------------------
+TABLE: USysRibbons
+------------------
+FIELD NAME          FIELD TYPE      SIZE    DESCRIPTION
+================    ============    ====    ===========
+RibbonName          Text            255                
+RibbonXML           Memo            0                  
+
+

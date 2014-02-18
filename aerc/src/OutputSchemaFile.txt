@@ -1,0 +1,58 @@
+Public Sub CreateTheDb()
+
+Dim strSQL As String
+On Error GoTo ErrorTrap
+
+'Local Table
+
+strSQL="CREATE TABLE [USysCodePage] ([CodePage] Long,[Name] Text (50),[DisplayName] Text (255) )"
+Currentdb.Execute strSQL
+
+strSQL="CREATE UNIQUE INDEX [PrimaryKey] ON [USysCodePage] ([DisplayName])  WITH PRIMARY DISALLOW NULL "
+Currentdb.Execute strSQL
+
+'Local Table
+
+strSQL="CREATE TABLE [USysDib] ([dib_version] Integer,[dib_num] Long,[dib_id] Long,[dib_str] Text (116) )"
+Currentdb.Execute strSQL
+
+strSQL="CREATE INDEX [dib_id] ON [USysDib] ([dib_str]) "
+Currentdb.Execute strSQL
+
+strSQL="CREATE UNIQUE INDEX [PrimaryKey] ON [USysDib] ([dib_str])  WITH PRIMARY DISALLOW NULL "
+Currentdb.Execute strSQL
+
+'Local Table
+
+strSQL="CREATE TABLE [USysMultiLanguage] ([S_ObjectParent] Text (255),[S_ObjectType] Text (2),[S_ObjectName] Text (255),[S_ObjectProperty] Text (255),[S_Language_1] Memo,[S_Language_2] Memo,[S_Language_3] Memo,[S_Language_4] Memo,[S_Language_5] Memo )"
+Currentdb.Execute strSQL
+
+strSQL="CREATE INDEX [FindFast] ON [USysMultiLanguage] ([S_Language_5]) "
+Currentdb.Execute strSQL
+
+'Local Table
+
+strSQL="CREATE TABLE [USysRegInfo] ([rownum] Counter,[Subkey] Text (255),[Type] Long,[ValName] Text (255),[Value] Text (255) )"
+Currentdb.Execute strSQL
+
+strSQL="CREATE UNIQUE INDEX [PrimaryKey] ON [USysRegInfo] ([Value])  WITH PRIMARY DISALLOW NULL "
+Currentdb.Execute strSQL
+
+strSQL="CREATE INDEX [rownum] ON [USysRegInfo] ([Value]) "
+Currentdb.Execute strSQL
+
+strSQL="CREATE INDEX [Subkey] ON [USysRegInfo] ([Value]) "
+Currentdb.Execute strSQL
+
+'Local Table
+
+strSQL="CREATE TABLE [USysRibbons] ([RibbonName] Text (255),[RibbonXML] Memo )"
+Currentdb.Execute strSQL
+
+'Access 2010 - Compact And Repair
+SendKeys "%F{END}{ENTER}%F{TAB}{TAB}{ENTER}", False
+Exit Sub
+ErrorTrap:
+MsgBox "Erl=" & vbCrLf & "Err.Number=" & Err.Number & vbCrLf & "Err.Description=" & Err.Description
+
+End Sub
